@@ -125,6 +125,15 @@ class Gameplay: CCNode, CCPhysicsCollisionDelegate {
         }
     }
     func sealRemoved(seal: Seal) {
+        // load particle effect
+        let explosion = CCBReader.load("SealExplosion") as! CCParticleSystem
+        // make the particle effect clean itself up, once it is completed
+        explosion.autoRemoveOnFinish = true;
+        // place the particle effect on the seals position
+        explosion.position = seal.position;
+        // add the particle effect to the same node the seal is on
+        seal.parent.addChild(explosion)
+        // finally, remove the seal from the level
         seal.removeFromParent()
     }
 }
