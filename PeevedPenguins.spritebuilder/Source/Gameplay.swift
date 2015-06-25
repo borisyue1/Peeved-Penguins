@@ -25,7 +25,7 @@ class Gameplay: CCNode, CCPhysicsCollisionDelegate {
         userInteractionEnabled = true
         let level = CCBReader.load("Levels/Level1")
         levelNode.addChild(level)
-        gamePhysicsNode.debugDraw = true
+//        gamePhysicsNode.debugDraw = true
         pullbackNode.physicsBody.collisionMask = []
         mouseJointNode.physicsBody.collisionMask = []
         gamePhysicsNode.collisionDelegate = self
