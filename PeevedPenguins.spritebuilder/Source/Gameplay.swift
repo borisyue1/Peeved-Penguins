@@ -18,6 +18,9 @@ class Gameplay: CCNode, CCPhysicsCollisionDelegate {
     var mouseJoint: CCPhysicsJoint?
     var currentPenguin: Penguin?
     var penguinCatapultJoint: CCPhysicsJoint?
+    let minSpeed = CGFloat(10)
+    var actionFollow: CCActionFollow?
+
 
     
     // called when CCB file has completed loading
@@ -32,7 +35,36 @@ class Gameplay: CCNode, CCPhysicsCollisionDelegate {
 
 
     }
-    
+    override func update(delta: CCTime) {
+        if let currentPenguin = currentPenguin {
+            // if speed is below minimum speed, assume this attempt is over
+            if currentPenguin.launched {
+            if ccpLength(currentPenguin.physicsBody.velocity) < minSpeed {//ccplength converts to float
+                nextAttempt()
+                return
+            }
+            
+            let xMin = currentPenguin.boundingBox().origin.x
+            if (xMin < boundingBox().origin.x) {
+                nextAttempt()
+                return
+            }
+            
+            let xMax = xMin + currentPenguin.boundingBox().size.width//min +width= max
+            if xMax > (boundingBox().origin.x + boundingBox().size.width) {
+                nextAttempt()
+                return
+            }
+        }
+        }
+    }
+    func nextAttempt() {
+        currentPenguin = nil
+        contentNode.stopAction(actionFollow)
+        
+        let actionMoveTo = CCActionMoveTo(duration: 1, position: CGPoint.zeroPoint)
+        contentNode.runAction(actionMoveTo)
+    }
     override func touchBegan(touch: CCTouch!, withEvent event: CCTouchEvent!) {
         let touchLocation = touch.locationInNode(contentNode)//converts to cgpoint
         
@@ -75,6 +107,7 @@ class Gameplay: CCNode, CCPhysicsCollisionDelegate {
         releaseCatapult()
     }
     func releaseCatapult() {
+        currentPenguin?.launched = true
         if let joint = mouseJoint {//joint takes value of mousejoint if there is one
             // releases the joint and lets the catapult snap back
             joint.invalidate()
@@ -87,7 +120,7 @@ class Gameplay: CCNode, CCPhysicsCollisionDelegate {
             currentPenguin?.physicsBody.allowsRotation = true
             
             // follow the flying penguin
-            let actionFollow = CCActionFollow(target: currentPenguin, worldBoundary: boundingBox())
+            actionFollow = CCActionFollow(target: currentPenguin, worldBoundary: boundingBox())
             contentNode.runAction(actionFollow)
         }
     }
